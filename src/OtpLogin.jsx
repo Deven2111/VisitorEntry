@@ -1,4 +1,3 @@
-// src/OtpLogin.js
 import { useState } from "react";
 import { auth } from "./firebase";
 import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
@@ -8,7 +7,6 @@ export default function OtpLogin({ onSuccess }) {
   const [otp, setOtp] = useState("");
   const [confirmationResult, setConfirmationResult] = useState(null);
 
-  // Setup reCAPTCHA once
   const setupRecaptcha = () => {
     if (!window.recaptchaVerifier) {
       window.recaptchaVerifier = new RecaptchaVerifier(
@@ -19,7 +17,6 @@ export default function OtpLogin({ onSuccess }) {
     }
   };
 
-  // Step 1: send OTP
   const sendOtp = async () => {
     setupRecaptcha();
     try {
@@ -36,13 +33,12 @@ export default function OtpLogin({ onSuccess }) {
     }
   };
 
-  // Step 2: verify OTP
   const verifyOtp = async () => {
     if (!confirmationResult) return;
     try {
       await confirmationResult.confirm(otp);
       alert("OTP verified ✅");
-      onSuccess(); // tell parent login is successful
+      onSuccess();
     } catch (err) {
       console.error(err);
       alert("Invalid OTP");
@@ -50,38 +46,31 @@ export default function OtpLogin({ onSuccess }) {
   };
 
   return (
-    <div className="p-4 max-w-sm mx-auto">
+    <div className="container">
       <h2>Visitor Login</h2>
       <input
-        className="border p-2 w-full mt-2"
         type="text"
         placeholder="+91 9999999999"
         value={phone}
         onChange={(e) => setPhone(e.target.value)}
       />
-      <button className="bg-blue-500 text-white px-4 py-2 mt-2" onClick={sendOtp}>
+      <button className="primary" onClick={sendOtp}>
         Send OTP
       </button>
 
       {confirmationResult && (
         <>
           <input
-            className="border p-2 w-full mt-2"
             type="text"
             placeholder="Enter OTP"
             value={otp}
             onChange={(e) => setOtp(e.target.value)}
           />
-          <button
-            className="bg-green-500 text-white px-4 py-2 mt-2"
-            onClick={verifyOtp}
-          >
+          <button className="success" onClick={verifyOtp}>
             Verify OTP
           </button>
         </>
       )}
-
-      {/* invisible reCAPTCHA */}
       <div id="recaptcha-container"></div>
     </div>
   );
