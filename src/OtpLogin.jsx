@@ -6,6 +6,45 @@ export default function OtpLogin({ onSuccess }) {
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
   const [confirmationResult, setConfirmationResult] = useState(null);
+  const [language, setLanguage] = useState("en"); // default English
+
+  const translations = {
+    en: {
+      title: "Visitor Login",
+      phonePlaceholder: "Enter phone number (e.g., +91 9999999999)",
+      sendOtp: "Send OTP",
+      otpPlaceholder: "Enter OTP",
+      verifyOtp: "Verify OTP",
+      otpSent: "OTP sent!",
+      otpVerified: "OTP verified ✅",
+      invalidOtp: "Invalid OTP",
+      errorSending: "Error sending OTP: ",
+    },
+    hi: {
+      title: "आगंतुक लॉगिन",
+      phonePlaceholder: "फ़ोन नंबर दर्ज करें (जैसे +91 9999999999)",
+      sendOtp: "ओटीपी भेजें",
+      otpPlaceholder: "ओटीपी दर्ज करें",
+      verifyOtp: "ओटीपी सत्यापित करें",
+      otpSent: "ओटीपी भेजा गया!",
+      otpVerified: "ओटीपी सत्यापित ✅",
+      invalidOtp: "अमान्य ओटीपी",
+      errorSending: "ओटीपी भेजने में त्रुटि: ",
+    },
+    mr: {
+      title: "पाहुणे लॉगिन",
+      phonePlaceholder: "फोन नंबर टाका (उदा. +91 9999999999)",
+      sendOtp: "ओटीपी पाठवा",
+      otpPlaceholder: "ओटीपी टाका",
+      verifyOtp: "ओटीपी पडताळा",
+      otpSent: "ओटीपी पाठवला गेला!",
+      otpVerified: "ओटीपी पडताळला ✅",
+      invalidOtp: "अवैध ओटीपी",
+      errorSending: "ओटीपी पाठवताना त्रुटी: ",
+    },
+  };
+
+  const t = translations[language];
 
   const setupRecaptcha = () => {
     if (!window.recaptchaVerifier) {
@@ -26,10 +65,10 @@ export default function OtpLogin({ onSuccess }) {
         window.recaptchaVerifier
       );
       setConfirmationResult(result);
-      alert("OTP sent!");
+      alert(t.otpSent);
     } catch (err) {
       console.error(err);
-      alert("Error sending OTP: " + err.message);
+      alert(t.errorSending + err.message);
     }
   };
 
@@ -37,37 +76,51 @@ export default function OtpLogin({ onSuccess }) {
     if (!confirmationResult) return;
     try {
       await confirmationResult.confirm(otp);
-      alert("OTP verified ✅");
+      alert(t.otpVerified);
       onSuccess();
     } catch (err) {
       console.error(err);
-      alert("Invalid OTP");
+      alert(t.invalidOtp);
     }
   };
 
   return (
     <div className="container">
-      <h2>Visitor Login</h2>
+      {/* Language Selector */}
+      <div style={{ marginBottom: "10px" }}>
+        <label htmlFor="language">🌐 Language: </label>
+        <select
+          id="language"
+          value={language}
+          onChange={(e) => setLanguage(e.target.value)}
+        >
+          <option value="en">English</option>
+          <option value="hi">हिंदी</option>
+          <option value="mr">मराठी</option>
+        </select>
+      </div>
+
+      <h2>{t.title}</h2>
       <input
         type="text"
-        placeholder="+91 9999999999"
+        placeholder={t.phonePlaceholder}
         value={phone}
         onChange={(e) => setPhone(e.target.value)}
       />
       <button className="primary" onClick={sendOtp}>
-        Send OTP
+        {t.sendOtp}
       </button>
 
       {confirmationResult && (
         <>
           <input
             type="text"
-            placeholder="Enter OTP"
+            placeholder={t.otpPlaceholder}
             value={otp}
             onChange={(e) => setOtp(e.target.value)}
           />
           <button className="success" onClick={verifyOtp}>
-            Verify OTP
+            {t.verifyOtp}
           </button>
         </>
       )}
