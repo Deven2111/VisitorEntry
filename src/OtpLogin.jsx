@@ -11,7 +11,7 @@ export default function OtpLogin({ onSuccess }) {
   const translations = {
     en: {
       title: "Visitor Login",
-      phonePlaceholder: "Enter phone number (e.g., +91 9999999999)",
+      phonePlaceholder: "Enter 10-digit phone number",
       sendOtp: "Send OTP",
       otpPlaceholder: "Enter OTP",
       verifyOtp: "Verify OTP",
@@ -22,7 +22,7 @@ export default function OtpLogin({ onSuccess }) {
     },
     hi: {
       title: "आगंतुक लॉगिन",
-      phonePlaceholder: "फ़ोन नंबर दर्ज करें (जैसे +91 9999999999)",
+      phonePlaceholder: "10 अंकों का मोबाइल नंबर दर्ज करें",
       sendOtp: "ओटीपी भेजें",
       otpPlaceholder: "ओटीपी दर्ज करें",
       verifyOtp: "ओटीपी सत्यापित करें",
@@ -33,7 +33,7 @@ export default function OtpLogin({ onSuccess }) {
     },
     mr: {
       title: "पाहुणे लॉगिन",
-      phonePlaceholder: "फोन नंबर टाका (उदा. +91 9999999999)",
+      phonePlaceholder: "१० अंकी मोबाईल नंबर टाका",
       sendOtp: "ओटीपी पाठवा",
       otpPlaceholder: "ओटीपी टाका",
       verifyOtp: "ओटीपी पडताळा",
@@ -58,10 +58,19 @@ export default function OtpLogin({ onSuccess }) {
 
   const sendOtp = async () => {
     setupRecaptcha();
+
+    // prepend +91 automatically
+    const fullPhone = `+91${phone}`;
+
+    if (!/^\d{10}$/.test(phone)) {
+      alert("Please enter a valid 10-digit number");
+      return;
+    }
+
     try {
       const result = await signInWithPhoneNumber(
         auth,
-        phone,
+        fullPhone,
         window.recaptchaVerifier
       );
       setConfirmationResult(result);
@@ -101,12 +110,20 @@ export default function OtpLogin({ onSuccess }) {
       </div>
 
       <h2>{t.title}</h2>
-      <input
-        type="text"
-        placeholder={t.phonePlaceholder}
-        value={phone}
-        onChange={(e) => setPhone(e.target.value)}
-      />
+      <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+        <span>+91</span>
+        <input
+          type="text"
+          placeholder={t.phonePlaceholder}
+          value={phone}
+          maxLength={10}
+          onChange={(e) => {
+            const value = e.target.value.replace(/\D/g, ""); // allow only numbers
+            setPhone(value);
+          }}
+        />
+      </div>
+
       <button className="primary" onClick={sendOtp}>
         {t.sendOtp}
       </button>
